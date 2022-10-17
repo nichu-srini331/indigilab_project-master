@@ -1,13 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createWorker } from 'tesseract.js';
 import './App.css';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { FaBeer } from 'react-icons/fa';
+import translate from "translate";
 
 function Converter(props) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [textResult, setTextResult] = useState("");
+  const[inputval,setinputval]=useState("");
   const data = props.data
 
  
+
+
+
+
+
+  
 
   const worker = createWorker();
 
@@ -18,6 +28,13 @@ function Converter(props) {
     await worker.initialize("eng");
     const { data } = await worker.recognize(selectedImage);
     setTextResult(data.text);
+    translate.engine = "google"; // Or "yandex", "libre", "deepl"
+    translate.key = process.env.GOOGLE_KEY;
+    translate.from = "en";
+    const text = translate(textResult, { to: "ja" }).then((result)=>{
+      setinputval(result)
+      console.log(result)
+    });
   }, [worker, selectedImage]);
 
   useEffect(() => {
@@ -53,7 +70,11 @@ function Converter(props) {
             <p>{textResult}</p>
           </div>
         )}
+        <CopyToClipboard text={textResult}>
+        <button>Copy</button>
+        </CopyToClipboard>
       </div>
+      {inputval}
     </div>
   );
 }
